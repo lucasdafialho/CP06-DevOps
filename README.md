@@ -6,6 +6,12 @@
 
 Uma aplicação web moderna e robusta desenvolvida em ASP.NET Core MVC para gerenciamento completo de bibliotecas, utilizando MongoDB como banco de dados NoSQL e implementando arquitetura de microserviços com documentação automática via Swagger.
 
+ ## Equipe de Desenvolvimento
+
+- **Julia Monteiro** - RM 557023
+- **Lucas de Assis Fialho** - RM 557884
+- **Samuel Patrick Yariwake** - RM 556461
+
 ## Características Principais
 
 - **Arquitetura Moderna**: Desenvolvido com ASP.NET Core 8 e padrões de desenvolvimento limpo
