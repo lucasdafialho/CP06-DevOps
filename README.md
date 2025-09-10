@@ -22,6 +22,12 @@ Uma aplicação web moderna e robusta desenvolvida em ASP.NET Core MVC para gere
 - **Tratamento de Erros**: Sistema robusto de tratamento de exceções e validações
 - **Código Limpo**: Implementação seguindo princípios SOLID e Clean Code
 
+## Demonstração
+
+**Demonstração do Swagger!** Assista ao vídeo de 30 segundos que mostra a documentação automática e os testes interativos da API:
+
+[![Demonstração do Sistema](https://img.youtube.com/vi/TeyxqjLD984/0.jpg)](https://youtu.be/TeyxqjLD984)
+
 ## Stack Tecnológica
 
 | Tecnologia | Versão | Descrição |
