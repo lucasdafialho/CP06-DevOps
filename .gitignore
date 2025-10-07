@@ -13,4 +13,4 @@ publish/
 appsettings.Development.json
 launchSettings.json
 *.log
-
+.claude/
