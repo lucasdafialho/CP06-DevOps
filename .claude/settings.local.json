@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(az webapp log tail:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(az webapp deploy:*)",
+      "Bash(az webapp config appsettings set:*)",
+      "Bash(az webapp deployment source config-zip:*)",
+      "Bash(az webapp stop:*)",
+      "Bash(az webapp deployment source config-local-git:*)",
+      "Bash(powershell.exe -Command \"$creds = az webapp deployment list-publishing-credentials --resource-group rg-biblioteca-app --name webapp-biblioteca-api --query ''{username:publishingUserName, password:publishingPassword}'' | ConvertFrom-Json; az webapp deployment source delete --resource-group rg-biblioteca-app --name webapp-biblioteca-api 2>$null; $url = ''https://'' + $creds.username + '':'' + $creds.password + ''@webapp-biblioteca-api.scm.azurewebsites.net/api/zipdeploy''; Invoke-RestMethod -Uri $url -Method POST -InFile ''app.zip'' -Headers @{''Content-Type''=''application/zip''} -TimeoutSec 300\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
