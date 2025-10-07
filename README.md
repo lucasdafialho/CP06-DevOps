@@ -216,20 +216,6 @@ az webapp log tail --name webapp-biblioteca-api --resource-group rg-biblioteca-a
 ### Application Insights não mostra dados
 Verifique a Connection String e reinicie o Web App.
 
-## Requisitos Atendidos
-
-- ✅ Aplicação Web em .NET 8.0
-- ✅ Deploy no Azure App Service
-- ✅ Banco SQL Server PaaS
-- ✅ Duas tabelas relacionadas (Master-Detail)
-- ✅ Foreign Key (Livros → Autores)
-- ✅ Application Insights configurado
-- ✅ Scripts Azure CLI
-- ✅ DDL das tabelas
-- ✅ How to de implantação
-- ✅ JSON das operações (GET, POST, PUT, DELETE)
-- ✅ Roteiro para vídeo
-
 ## Licença
 
 Projeto acadêmico desenvolvido para a disciplina de DevOps - FIAP
