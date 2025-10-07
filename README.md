@@ -1,265 +1,243 @@
-# Sistema de Gerenciamento de Biblioteca
+# Sistema de Biblioteca - Azure Web App
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/download)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6.0-green.svg)](https://www.mongodb.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+Sistema de gerenciamento de biblioteca desenvolvido em .NET 8.0 com deploy no Microsoft Azure. Projeto desenvolvido para o CP06 da disciplina de DevOps.
 
-Uma aplicação web moderna e robusta desenvolvida em ASP.NET Core MVC para gerenciamento completo de bibliotecas, utilizando MongoDB como banco de dados NoSQL e implementando arquitetura de microserviços com documentação automática via Swagger.
+## Tecnologias Utilizadas
 
- ## Equipe de Desenvolvimento
+- **.NET 8.0**: Framework principal
+- **Entity Framework Core**: ORM para acesso a dados
+- **SQL Server Azure**: Banco de dados PaaS
+- **Application Insights**: Monitoramento e observabilidade
+- **Azure App Service**: Hospedagem da aplicação
+- **Swagger/OpenAPI**: Documentação da API
 
-- **Julia Monteiro** - RM 557023
-- **Lucas de Assis Fialho** - RM 557884
-- **Samuel Patrick Yariwake** - RM 556461
+## Arquitetura
 
-## Características Principais
+### Modelo de Dados (Master-Detail)
 
-- **Arquitetura Moderna**: Desenvolvido com ASP.NET Core 8 e padrões de desenvolvimento limpo
-- **Banco NoSQL**: Integração completa com MongoDB para alta performance e escalabilidade
-- **API RESTful**: Endpoints bem estruturados seguindo as melhores práticas REST
-- **Documentação Automática**: Swagger integrado para documentação interativa da API
-- **Embedding de Documentos**: Modelagem otimizada com dados aninhados para melhor performance
-- **Tratamento de Erros**: Sistema robusto de tratamento de exceções e validações
-- **Código Limpo**: Implementação seguindo princípios SOLID e Clean Code
+**Tabela Master: Autores**
+- Id (PK)
+- Nome
+- Nacionalidade
+- Livros (Navigation Property)
 
-## Demonstração
+**Tabela Detail: Livros**
+- Id (PK)
+- Titulo
+- AnoPublicacao
+- AutorId (FK → Autores.Id)
+- Autor (Navigation Property)
 
-**Demonstração do Swagger!** Assista ao vídeo de 30 segundos que mostra a documentação automática e os testes interativos da API:
-
-[![Demonstração do Sistema](https://img.youtube.com/vi/TeyxqjLD984/0.jpg)](https://youtu.be/TeyxqjLD984)
-
-## Stack Tecnológica
-
-| Tecnologia | Versão | Descrição |
-|------------|--------|-----------|
-| **.NET** | 8.0 | Framework principal da aplicação |
-| **ASP.NET Core** | 8.0 | Framework web para APIs RESTful |
-| **MongoDB** | 6.0+ | Banco de dados NoSQL |
-| **MongoDB.Driver** | 2.22.0 | Driver oficial para .NET |
-| **Swashbuckle** | 6.5.0 | Geração automática de documentação Swagger |
+### Relacionamento
+Um Autor pode ter múltiplos Livros (1:N), implementado através de Foreign Key.
 
 ## Estrutura do Projeto
 
 ```
-SistemaBiblioteca/
+CP04-dotNET/
 ├── Controllers/
-│   └── LivrosController.cs          # API Controller com operações CRUD
+│   ├── AutoresController.cs      # CRUD de Autores
+│   └── LivrosController.cs       # CRUD de Livros
 ├── Models/
-│   ├── Livro.cs                     # Modelo principal com mapeamento BSON
-│   └── Autor.cs                     # Modelo aninhado para embedding
-├── Services/
-│   ├── IMongoDbService.cs           # Interface do serviço MongoDB
-│   └── MongoDbService.cs            # Implementação do serviço
-├── Properties/
-│   └── launchSettings.json          # Configurações de execução
-├── appsettings.json                 # Configurações da aplicação
-├── appsettings.Development.json     # Configurações de desenvolvimento
-├── Program.cs                       # Ponto de entrada da aplicação
-├── SistemaBiblioteca.csproj         # Arquivo de projeto
-└── README.md                        # Documentação do projeto
+│   ├── Autor.cs                  # Entidade Autor
+│   └── Livro.cs                  # Entidade Livro
+├── Data/
+│   └── BibliotecaDbContext.cs    # Contexto EF Core
+├── Database/
+│   └── DDL_Script.sql            # Script de criação das tabelas
+├── Scripts/
+│   ├── deploy-azure.sh           # Script deploy Linux/Mac
+│   └── deploy-azure.ps1          # Script deploy Windows
+├── HOWTO_DEPLOY.md               # Guia completo de implantação
+├── API_Operations.json           # JSON das operações da API
+├── ROTEIRO_VIDEO.md              # Roteiro para vídeo
+└── README.md                     # Este arquivo
 ```
 
-## Arquitetura
+## Funcionalidades
 
-### Modelo de Dados
+### API REST - Autores
+- **GET** `/api/autores` - Lista todos os autores
+- **GET** `/api/autores/{id}` - Busca autor por ID
+- **POST** `/api/autores` - Cria novo autor
+- **PUT** `/api/autores/{id}` - Atualiza autor
+- **DELETE** `/api/autores/{id}` - Deleta autor
 
-O sistema utiliza a técnica de **embedding de documentos** do MongoDB, onde as informações do autor são armazenadas diretamente no documento do livro, otimizando consultas e melhorando a performance.
+### API REST - Livros
+- **GET** `/api/livros` - Lista todos os livros
+- **GET** `/api/livros/{id}` - Busca livro por ID
+- **POST** `/api/livros` - Cria novo livro
+- **PUT** `/api/livros/{id}` - Atualiza livro
+- **DELETE** `/api/livros/{id}` - Deleta livro
 
-```json
-{
-  "_id": "ObjectId",
-  "Titulo": "Nome do Livro",
-  "AnoPublicacao": 2024,
-  "Autor": {
-    "Nome": "Nome do Autor",
-    "Nacionalidade": "Brasil"
-  }
-}
+## Deploy no Azure
+
+### Opção 1: Script Automatizado (Recomendado)
+
+**Linux/Mac:**
+```bash
+cd Scripts
+chmod +x deploy-azure.sh
+./deploy-azure.sh
 ```
 
-### Padrões Implementados
+**Windows (PowerShell):**
+```powershell
+cd Scripts
+.\deploy-azure.ps1
+```
 
-- **Repository Pattern**: Abstração da camada de dados
-- **Dependency Injection**: Injeção de dependências nativa do .NET
-- **Interface Segregation**: Separação clara de responsabilidades
-- **Single Responsibility**: Cada classe tem uma responsabilidade específica
+### Opção 2: Passo a Passo Manual
 
-## Configuração e Instalação
+Consulte o arquivo [HOWTO_DEPLOY.md](HOWTO_DEPLOY.md) para instruções detalhadas.
+
+## Configuração Local
 
 ### Pré-requisitos
+- .NET 8.0 SDK
+- SQL Server (local ou Azure)
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [MongoDB](https://www.mongodb.com/try/download/community) (versão 6.0 ou superior)
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) ou [VS Code](https://code.visualstudio.com/)
+### Passos
 
-### Instalação
+1. Clone o repositório
+```bash
+git clone [URL_DO_REPOSITORIO]
+cd CP04-dotNET
+```
 
-1. **Clone o repositório**
-   ```bash
-   git clone https://github.com/seu-usuario/sistema-biblioteca.git
-   cd sistema-biblioteca
-   ```
-
-2. **Instale as dependências**
-   ```bash
-   dotnet restore
-   ```
-
-3. **Configure o MongoDB**
-   - Instale e inicie o MongoDB
-   - A connection string padrão é: `mongodb://localhost:27017`
-   - O banco será criado automaticamente: `SistemaBiblioteca`
-   - A coleção será criada automaticamente: `Livros`
-
-4. **Configure as variáveis de ambiente** (opcional)
-   ```json
-   {
-     "MongoDB": {
-       "ConnectionString": "mongodb://localhost:27017",
-       "DatabaseName": "SistemaBiblioteca",
-       "CollectionName": "Livros"
-     }
-   }
-   ```
-
-5. **Execute a aplicação**
-   ```bash
-   dotnet run
-   ```
-
-6. **Acesse a documentação**
-   - Swagger UI: `https://localhost:7000/swagger`
-   - API Base: `https://localhost:7000/api`
-
-## Documentação da API
-
-### Endpoints Disponíveis
-
-| Método | Endpoint | Descrição | Parâmetros |
-|--------|----------|-----------|------------|
-| `POST` | `/api/livros` | Criar novo livro | Body: `Livro` |
-| `GET` | `/api/livros` | Listar todos os livros | - |
-| `GET` | `/api/livros/{id}` | Buscar livro por ID | Path: `id` |
-| `PUT` | `/api/livros/{id}` | Atualizar livro existente | Path: `id`, Body: `Livro` |
-| `DELETE` | `/api/livros/{id}` | Deletar livro | Path: `id` |
-
-### Modelo de Dados
-
-#### Livro
+2. Configure a Connection String em `appsettings.json`
 ```json
 {
-  "id": "string (ObjectId)",
-  "titulo": "string",
-  "anoPublicacao": "number",
-  "autor": {
-    "nome": "string",
-    "nacionalidade": "string"
+  "ConnectionStrings": {
+    "DefaultConnection": "SUA_CONNECTION_STRING"
   }
 }
 ```
 
-### Exemplos de Uso
-
-#### Criar um novo livro
+3. Execute as migrations (ou execute o DDL_Script.sql)
 ```bash
-curl -X POST "https://localhost:7000/api/livros" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "titulo": "Clean Code",
-    "anoPublicacao": 2008,
-    "autor": {
-      "nome": "Robert C. Martin",
-      "nacionalidade": "Estados Unidos"
-    }
-  }'
+dotnet ef database update
 ```
 
-#### Listar todos os livros
+4. Execute a aplicação
 ```bash
-curl -X GET "https://localhost:7000/api/livros"
+dotnet run
 ```
 
-#### Buscar livro por ID
-```bash
-curl -X GET "https://localhost:7000/api/livros/507f1f77bcf86cd799439011"
+5. Acesse o Swagger
+```
+https://localhost:7000/swagger
 ```
 
-## Testes
+## Monitoramento
 
-### Executando Testes via Swagger
+A aplicação está integrada com **Azure Application Insights** para:
+- Rastreamento de requisições
+- Monitoramento de performance
+- Detecção de erros e exceções
+- Métricas em tempo real
+- Análise de dependências (SQL)
 
-1. Acesse `https://localhost:7000/swagger`
-2. Use a interface interativa para testar todos os endpoints
-3. Visualize os modelos de dados e códigos de resposta
+### Acessar Métricas
+1. Portal Azure → Application Insights
+2. Visualizar dashboards de performance
+3. Analisar logs e traces
+4. Configurar alertas
 
-### Testes Manuais
+## Validação da Persistência
 
-```bash
-# Teste de conectividade
-curl -X GET "https://localhost:7000/api/livros"
+Após cada operação da API, valide a persistência executando queries SQL:
 
-# Teste de criação
-curl -X POST "https://localhost:7000/api/livros" \
-  -H "Content-Type: application/json" \
-  -d '{"titulo":"Teste","anoPublicacao":2024,"autor":{"nome":"Autor Teste","nacionalidade":"Brasil"}}'
+```sql
+-- Listar autores
+SELECT * FROM Autores;
+
+-- Listar livros com autores
+SELECT l.*, a.Nome as AutorNome 
+FROM Livros l 
+INNER JOIN Autores a ON l.AutorId = a.Id;
+
+-- Contar livros por autor
+SELECT a.Nome, COUNT(l.Id) as TotalLivros 
+FROM Autores a 
+LEFT JOIN Livros l ON a.Id = l.AutorId 
+GROUP BY a.Id, a.Nome;
 ```
 
-## Desenvolvimento
+## Documentação Adicional
 
-### Estrutura de Branches
+- **[HOWTO_DEPLOY.md](HOWTO_DEPLOY.md)**: Guia completo de implantação no Azure
+- **[API_Operations.json](API_Operations.json)**: Detalhes de todas as operações da API
+- **[ROTEIRO_VIDEO.md](ROTEIRO_VIDEO.md)**: Roteiro para gravação do vídeo de demonstração
+- **[DDL_Script.sql](Database/DDL_Script.sql)**: Script de criação do banco de dados
 
-- `main`: Branch principal com código estável
-- `develop`: Branch de desenvolvimento
-- `feature/*`: Branches para novas funcionalidades
-- `hotfix/*`: Branches para correções urgentes
+## Recursos Azure Criados
 
-### Padrões de Commit
-
-```
-feat: adiciona nova funcionalidade
-fix: corrige bug
-docs: atualiza documentação
-style: formatação de código
-refactor: refatoração de código
-test: adiciona ou corrige testes
-chore: tarefas de manutenção
-```
-
-### Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## Performance e Escalabilidade
-
-- **MongoDB**: Suporte nativo a sharding e replicação
-- **Connection Pooling**: Gerenciamento eficiente de conexões
-- **Async/Await**: Operações assíncronas para melhor throughput
-- **Embedding**: Redução de joins e melhor performance de consultas
+Após o deploy, os seguintes recursos são criados:
+- **Resource Group**: rg-biblioteca-app
+- **SQL Server**: sqlserver-biblioteca-app
+- **SQL Database**: BibliotecaDB (Tier S0)
+- **App Service Plan**: plan-biblioteca-app (B1)
+- **Web App**: webapp-biblioteca-api
+- **Application Insights**: appinsights-biblioteca
 
 ## Segurança
 
-- Validação de entrada em todos os endpoints
-- Sanitização de dados de entrada
-- Tratamento seguro de ObjectIds do MongoDB
-- Headers de segurança configurados
+- Connection Strings armazenadas em Application Settings (Azure)
+- Firewall do SQL Server configurado
+- Conexões SQL criptografadas (Encrypt=True)
+- Senhas não versionadas no código
 
-## Roadmap
+## Testes
 
-- [ ] Autenticação e autorização
-- [ ] Cache com Redis
-- [ ] Logs estruturados
-- [ ] Métricas e monitoramento
-- [ ] Testes automatizados
-- [ ] CI/CD pipeline
-- [ ] Containerização com Docker
-- [ ] Rate limiting
-- [ ] Paginação de resultados
+### Sequência Recomendada
+1. POST Autor 1 → Validar no banco
+2. POST Autor 2 → Validar no banco
+3. GET Autores → Verificar lista
+4. POST Livro 1 (FK Autor 1) → Validar com JOIN
+5. POST Livro 2 (FK Autor 1) → Validar com JOIN
+6. POST Livro 3 (FK Autor 2) → Validar com JOIN
+7. GET Livros → Verificar lista
+8. PUT Livro 1 → Validar atualização
+9. DELETE Livro 1 → Validar remoção
+10. Verificar Application Insights
+
+## Solução de Problemas
+
+### Erro de Conexão com SQL Server
+Verifique as regras de firewall e a Connection String.
+
+### Aplicação não inicia
+Verifique os logs:
+```bash
+az webapp log tail --name webapp-biblioteca-api --resource-group rg-biblioteca-app
+```
+
+### Application Insights não mostra dados
+Verifique a Connection String e reinicie o Web App.
+
+## Requisitos Atendidos
+
+- ✅ Aplicação Web em .NET 8.0
+- ✅ Deploy no Azure App Service
+- ✅ Banco SQL Server PaaS
+- ✅ Duas tabelas relacionadas (Master-Detail)
+- ✅ Foreign Key (Livros → Autores)
+- ✅ Application Insights configurado
+- ✅ Scripts Azure CLI
+- ✅ DDL das tabelas
+- ✅ How to de implantação
+- ✅ JSON das operações (GET, POST, PUT, DELETE)
+- ✅ Roteiro para vídeo
 
 ## Licença
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+Projeto acadêmico desenvolvido para a disciplina de DevOps - FIAP
+
+## Autores
+
+Grupo: [NOME_DO_GRUPO]
+- [RM - Nome do Integrante 1]
+- [RM - Nome do Integrante 2]
+- [RM - Nome do Integrante 3]
 

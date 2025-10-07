@@ -1,0 +1,481 @@
+{
+  "apiName": "Sistema Biblioteca - API REST",
+  "baseUrl": "https://webapp-biblioteca-api.azurewebsites.net",
+  "baseUrlLocal": "https://localhost:7000",
+  "version": "1.0",
+  "description": "API para gerenciamento de biblioteca com autores e livros",
+  
+  "endpoints": {
+    "autores": {
+      "description": "Operações relacionadas aos Autores (Tabela Master)",
+      
+      "GET_ALL": {
+        "method": "GET",
+        "endpoint": "/api/autores",
+        "description": "Retorna todos os autores cadastrados com seus livros",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": null
+        },
+        "response_success": {
+          "status": 200,
+          "body": [
+            {
+              "id": 1,
+              "nome": "Machado de Assis",
+              "nacionalidade": "Brasileira",
+              "livros": [
+                {
+                  "id": 1,
+                  "titulo": "Dom Casmurro",
+                  "anoPublicacao": 1899,
+                  "autorId": 1
+                }
+              ]
+            }
+          ]
+        },
+        "curl_example": "curl -X GET \"https://webapp-biblioteca-api.azurewebsites.net/api/autores\" -H \"accept: application/json\""
+      },
+      
+      "GET_BY_ID": {
+        "method": "GET",
+        "endpoint": "/api/autores/{id}",
+        "description": "Retorna um autor específico pelo ID com seus livros",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "pathParameters": {
+            "id": 1
+          },
+          "body": null
+        },
+        "response_success": {
+          "status": 200,
+          "body": {
+            "id": 1,
+            "nome": "Machado de Assis",
+            "nacionalidade": "Brasileira",
+            "livros": [
+              {
+                "id": 1,
+                "titulo": "Dom Casmurro",
+                "anoPublicacao": 1899,
+                "autorId": 1
+              }
+            ]
+          }
+        },
+        "response_error": {
+          "status": 404,
+          "body": "Not Found"
+        },
+        "curl_example": "curl -X GET \"https://webapp-biblioteca-api.azurewebsites.net/api/autores/1\" -H \"accept: application/json\""
+      },
+      
+      "POST": {
+        "method": "POST",
+        "endpoint": "/api/autores",
+        "description": "Cria um novo autor",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "nome": "Machado de Assis",
+            "nacionalidade": "Brasileira"
+          }
+        },
+        "response_success": {
+          "status": 201,
+          "body": {
+            "id": 1,
+            "nome": "Machado de Assis",
+            "nacionalidade": "Brasileira",
+            "livros": []
+          }
+        },
+        "response_error": {
+          "status": 400,
+          "body": "Bad Request - Dados inválidos"
+        },
+        "curl_example": "curl -X POST \"https://webapp-biblioteca-api.azurewebsites.net/api/autores\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d '{\"nome\":\"Machado de Assis\",\"nacionalidade\":\"Brasileira\"}'"
+      },
+      
+      "PUT": {
+        "method": "PUT",
+        "endpoint": "/api/autores/{id}",
+        "description": "Atualiza um autor existente",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "pathParameters": {
+            "id": 1
+          },
+          "body": {
+            "id": 1,
+            "nome": "Joaquim Maria Machado de Assis",
+            "nacionalidade": "Brasileira"
+          }
+        },
+        "response_success": {
+          "status": 204,
+          "body": null
+        },
+        "response_error_not_found": {
+          "status": 404,
+          "body": "Not Found"
+        },
+        "response_error_bad_request": {
+          "status": 400,
+          "body": "Bad Request - ID não corresponde"
+        },
+        "curl_example": "curl -X PUT \"https://webapp-biblioteca-api.azurewebsites.net/api/autores/1\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d '{\"id\":1,\"nome\":\"Joaquim Maria Machado de Assis\",\"nacionalidade\":\"Brasileira\"}'"
+      },
+      
+      "DELETE": {
+        "method": "DELETE",
+        "endpoint": "/api/autores/{id}",
+        "description": "Deleta um autor (não permite se tiver livros cadastrados)",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "pathParameters": {
+            "id": 1
+          },
+          "body": null
+        },
+        "response_success": {
+          "status": 204,
+          "body": null
+        },
+        "response_error_not_found": {
+          "status": 404,
+          "body": "Not Found"
+        },
+        "response_error_constraint": {
+          "status": 400,
+          "body": "Não é possível excluir autor com livros cadastrados"
+        },
+        "curl_example": "curl -X DELETE \"https://webapp-biblioteca-api.azurewebsites.net/api/autores/1\" -H \"accept: application/json\""
+      }
+    },
+    
+    "livros": {
+      "description": "Operações relacionadas aos Livros (Tabela Detail)",
+      
+      "GET_ALL": {
+        "method": "GET",
+        "endpoint": "/api/livros",
+        "description": "Retorna todos os livros cadastrados com informações do autor",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": null
+        },
+        "response_success": {
+          "status": 200,
+          "body": [
+            {
+              "id": 1,
+              "titulo": "Dom Casmurro",
+              "anoPublicacao": 1899,
+              "autorId": 1,
+              "autor": {
+                "id": 1,
+                "nome": "Machado de Assis",
+                "nacionalidade": "Brasileira"
+              }
+            }
+          ]
+        },
+        "curl_example": "curl -X GET \"https://webapp-biblioteca-api.azurewebsites.net/api/livros\" -H \"accept: application/json\""
+      },
+      
+      "GET_BY_ID": {
+        "method": "GET",
+        "endpoint": "/api/livros/{id}",
+        "description": "Retorna um livro específico pelo ID com informações do autor",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "pathParameters": {
+            "id": 1
+          },
+          "body": null
+        },
+        "response_success": {
+          "status": 200,
+          "body": {
+            "id": 1,
+            "titulo": "Dom Casmurro",
+            "anoPublicacao": 1899,
+            "autorId": 1,
+            "autor": {
+              "id": 1,
+              "nome": "Machado de Assis",
+              "nacionalidade": "Brasileira"
+            }
+          }
+        },
+        "response_error": {
+          "status": 404,
+          "body": "Not Found"
+        },
+        "curl_example": "curl -X GET \"https://webapp-biblioteca-api.azurewebsites.net/api/livros/1\" -H \"accept: application/json\""
+      },
+      
+      "POST": {
+        "method": "POST",
+        "endpoint": "/api/livros",
+        "description": "Cria um novo livro (requer AutorId válido - Foreign Key)",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "titulo": "Dom Casmurro",
+            "anoPublicacao": 1899,
+            "autorId": 1
+          }
+        },
+        "response_success": {
+          "status": 201,
+          "body": {
+            "id": 1,
+            "titulo": "Dom Casmurro",
+            "anoPublicacao": 1899,
+            "autorId": 1,
+            "autor": null
+          }
+        },
+        "response_error_bad_request": {
+          "status": 400,
+          "body": "Autor não encontrado"
+        },
+        "curl_example": "curl -X POST \"https://webapp-biblioteca-api.azurewebsites.net/api/livros\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d '{\"titulo\":\"Dom Casmurro\",\"anoPublicacao\":1899,\"autorId\":1}'"
+      },
+      
+      "PUT": {
+        "method": "PUT",
+        "endpoint": "/api/livros/{id}",
+        "description": "Atualiza um livro existente (requer AutorId válido - Foreign Key)",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "pathParameters": {
+            "id": 1
+          },
+          "body": {
+            "id": 1,
+            "titulo": "Dom Casmurro - Edição Revisada",
+            "anoPublicacao": 1899,
+            "autorId": 1
+          }
+        },
+        "response_success": {
+          "status": 204,
+          "body": null
+        },
+        "response_error_not_found": {
+          "status": 404,
+          "body": "Not Found"
+        },
+        "response_error_bad_request": {
+          "status": 400,
+          "body": "Bad Request - ID não corresponde ou Autor não encontrado"
+        },
+        "curl_example": "curl -X PUT \"https://webapp-biblioteca-api.azurewebsites.net/api/livros/1\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d '{\"id\":1,\"titulo\":\"Dom Casmurro - Edição Revisada\",\"anoPublicacao\":1899,\"autorId\":1}'"
+      },
+      
+      "DELETE": {
+        "method": "DELETE",
+        "endpoint": "/api/livros/{id}",
+        "description": "Deleta um livro",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "pathParameters": {
+            "id": 1
+          },
+          "body": null
+        },
+        "response_success": {
+          "status": 204,
+          "body": null
+        },
+        "response_error": {
+          "status": 404,
+          "body": "Not Found"
+        },
+        "curl_example": "curl -X DELETE \"https://webapp-biblioteca-api.azurewebsites.net/api/livros/1\" -H \"accept: application/json\""
+      }
+    }
+  },
+  
+  "testSequence": {
+    "description": "Sequência recomendada de testes para demonstração",
+    "steps": [
+      {
+        "step": 1,
+        "action": "Criar Autor 1",
+        "method": "POST",
+        "endpoint": "/api/autores",
+        "body": {
+          "nome": "Machado de Assis",
+          "nacionalidade": "Brasileira"
+        }
+      },
+      {
+        "step": 2,
+        "action": "Verificar persistência no banco - SELECT * FROM Autores",
+        "sqlQuery": "SELECT * FROM Autores WHERE Nome = 'Machado de Assis';"
+      },
+      {
+        "step": 3,
+        "action": "Criar Autor 2",
+        "method": "POST",
+        "endpoint": "/api/autores",
+        "body": {
+          "nome": "Clarice Lispector",
+          "nacionalidade": "Brasileira"
+        }
+      },
+      {
+        "step": 4,
+        "action": "Listar todos autores",
+        "method": "GET",
+        "endpoint": "/api/autores"
+      },
+      {
+        "step": 5,
+        "action": "Verificar persistência no banco - SELECT * FROM Autores",
+        "sqlQuery": "SELECT * FROM Autores;"
+      },
+      {
+        "step": 6,
+        "action": "Criar Livro 1 (FK para Autor 1)",
+        "method": "POST",
+        "endpoint": "/api/livros",
+        "body": {
+          "titulo": "Dom Casmurro",
+          "anoPublicacao": 1899,
+          "autorId": 1
+        }
+      },
+      {
+        "step": 7,
+        "action": "Verificar persistência no banco - SELECT com JOIN",
+        "sqlQuery": "SELECT l.*, a.Nome as AutorNome FROM Livros l INNER JOIN Autores a ON l.AutorId = a.Id WHERE l.Titulo = 'Dom Casmurro';"
+      },
+      {
+        "step": 8,
+        "action": "Criar Livro 2 (FK para Autor 1)",
+        "method": "POST",
+        "endpoint": "/api/livros",
+        "body": {
+          "titulo": "Memórias Póstumas de Brás Cubas",
+          "anoPublicacao": 1881,
+          "autorId": 1
+        }
+      },
+      {
+        "step": 9,
+        "action": "Criar Livro 3 (FK para Autor 2)",
+        "method": "POST",
+        "endpoint": "/api/livros",
+        "body": {
+          "titulo": "A Hora da Estrela",
+          "anoPublicacao": 1977,
+          "autorId": 2
+        }
+      },
+      {
+        "step": 10,
+        "action": "Listar todos livros",
+        "method": "GET",
+        "endpoint": "/api/livros"
+      },
+      {
+        "step": 11,
+        "action": "Verificar persistência no banco - SELECT * FROM Livros",
+        "sqlQuery": "SELECT * FROM Livros;"
+      },
+      {
+        "step": 12,
+        "action": "Atualizar Livro 1",
+        "method": "PUT",
+        "endpoint": "/api/livros/1",
+        "body": {
+          "id": 1,
+          "titulo": "Dom Casmurro - Edição Especial",
+          "anoPublicacao": 1899,
+          "autorId": 1
+        }
+      },
+      {
+        "step": 13,
+        "action": "Verificar atualização no banco",
+        "sqlQuery": "SELECT * FROM Livros WHERE Id = 1;"
+      },
+      {
+        "step": 14,
+        "action": "Buscar Livro específico",
+        "method": "GET",
+        "endpoint": "/api/livros/1"
+      },
+      {
+        "step": 15,
+        "action": "Deletar Livro 1",
+        "method": "DELETE",
+        "endpoint": "/api/livros/1"
+      },
+      {
+        "step": 16,
+        "action": "Verificar deleção no banco",
+        "sqlQuery": "SELECT * FROM Livros WHERE Id = 1;"
+      },
+      {
+        "step": 17,
+        "action": "Verificar Application Insights - Requisições",
+        "description": "Acessar portal Azure e verificar métricas de todas as operações"
+      }
+    ]
+  },
+  
+  "validationQueries": {
+    "description": "Queries SQL para validação da persistência",
+    "queries": [
+      {
+        "name": "Listar todos autores",
+        "sql": "SELECT * FROM Autores;"
+      },
+      {
+        "name": "Listar todos livros",
+        "sql": "SELECT * FROM Livros;"
+      },
+      {
+        "name": "Listar livros com autores (JOIN)",
+        "sql": "SELECT l.Id, l.Titulo, l.AnoPublicacao, a.Nome as AutorNome, a.Nacionalidade FROM Livros l INNER JOIN Autores a ON l.AutorId = a.Id;"
+      },
+      {
+        "name": "Contar livros por autor",
+        "sql": "SELECT a.Nome, COUNT(l.Id) as TotalLivros FROM Autores a LEFT JOIN Livros l ON a.Id = l.AutorId GROUP BY a.Id, a.Nome;"
+      },
+      {
+        "name": "Verificar Foreign Key",
+        "sql": "SELECT fk.name AS ForeignKeyName, tp.name AS ParentTable, tr.name AS ReferencedTable FROM sys.foreign_keys fk INNER JOIN sys.tables tp ON fk.parent_object_id = tp.object_id INNER JOIN sys.tables tr ON fk.referenced_object_id = tr.object_id WHERE tp.name = 'Livros';"
+      }
+    ]
+  }
+}
+

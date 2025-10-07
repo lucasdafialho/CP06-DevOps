@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SistemaBiblioteca.Data;
 using SistemaBiblioteca.Models;
-using SistemaBiblioteca.Services;
 
 namespace SistemaBiblioteca.Controllers
 {
@@ -8,100 +9,101 @@ namespace SistemaBiblioteca.Controllers
     [Route("api/[controller]")]
     public class LivrosController : ControllerBase
     {
-        private readonly IMongoDbService _mongoDbService;
+        private readonly BibliotecaDbContext _context;
 
-        public LivrosController(IMongoDbService mongoDbService)
+        public LivrosController(BibliotecaDbContext context)
         {
-            _mongoDbService = mongoDbService;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Livro>> CriarLivro([FromBody] Livro livro)
-        {
-            try
-            {
-                var livroCriado = await _mongoDbService.CriarLivroAsync(livro);
-                return CreatedAtAction(nameof(ObterLivroPorId), new { id = livroCriado.Id }, livroCriado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Erro ao criar livro: {ex.Message}");
-            }
+            _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Livro>>> ObterTodosLivros()
+        public async Task<ActionResult<IEnumerable<Livro>>> GetLivros()
         {
-            try
-            {
-                var livros = await _mongoDbService.ObterTodosLivrosAsync();
-                return Ok(livros);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Erro ao obter livros: {ex.Message}");
-            }
+            return await _context.Livros.Include(l => l.Autor).ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Livro>> ObterLivroPorId(string id)
+        public async Task<ActionResult<Livro>> GetLivro(int id)
         {
-            try
+            var livro = await _context.Livros.Include(l => l.Autor).FirstOrDefaultAsync(l => l.Id == id);
+
+            if (livro == null)
             {
-                var livro = await _mongoDbService.ObterLivroPorIdAsync(id);
-                if (livro == null)
-                {
-                    return NotFound($"Livro com ID {id} não encontrado.");
-                }
-                return Ok(livro);
+                return NotFound();
             }
-            catch (Exception ex)
+
+            return livro;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Livro>> PostLivro(Livro livro)
+        {
+            var autorExists = await _context.Autores.AnyAsync(a => a.Id == livro.AutorId);
+            if (!autorExists)
             {
-                return BadRequest($"Erro ao obter livro: {ex.Message}");
+                return BadRequest("Autor não encontrado");
             }
+
+            _context.Livros.Add(livro);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetLivro), new { id = livro.Id }, livro);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> AtualizarLivro(string id, [FromBody] Livro livro)
+        public async Task<IActionResult> PutLivro(int id, Livro livro)
         {
+            if (id != livro.Id)
+            {
+                return BadRequest();
+            }
+
+            var autorExists = await _context.Autores.AnyAsync(a => a.Id == livro.AutorId);
+            if (!autorExists)
+            {
+                return BadRequest("Autor não encontrado");
+            }
+
+            _context.Entry(livro).State = EntityState.Modified;
+
             try
             {
-                if (id != livro.Id)
-                {
-                    return BadRequest("ID da URL não corresponde ao ID do livro.");
-                }
-
-                var sucesso = await _mongoDbService.AtualizarLivroAsync(id, livro);
-                if (!sucesso)
-                {
-                    return NotFound($"Livro com ID {id} não encontrado.");
-                }
-
-                return NoContent();
+                await _context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (DbUpdateConcurrencyException)
             {
-                return BadRequest($"Erro ao atualizar livro: {ex.Message}");
+                if (!LivroExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeletarLivro(string id)
+        public async Task<IActionResult> DeleteLivro(int id)
         {
-            try
+            var livro = await _context.Livros.FindAsync(id);
+            if (livro == null)
             {
-                var sucesso = await _mongoDbService.DeletarLivroAsync(id);
-                if (!sucesso)
-                {
-                    return NotFound($"Livro com ID {id} não encontrado.");
-                }
+                return NotFound();
+            }
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Erro ao deletar livro: {ex.Message}");
-            }
+            _context.Livros.Remove(livro);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool LivroExists(int id)
+        {
+            return _context.Livros.Any(e => e.Id == id);
         }
     }
 }
+

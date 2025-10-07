@@ -1,21 +1,26 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaBiblioteca.Models
 {
+    [Table("Livros")]
     public class Livro
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = string.Empty;
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
-        [BsonElement("Titulo")]
+        [Required]
+        [StringLength(300)]
         public string Titulo { get; set; } = string.Empty;
 
-        [BsonElement("AnoPublicacao")]
+        [Required]
         public int AnoPublicacao { get; set; }
 
-        [BsonElement("Autor")]
-        public Autor Autor { get; set; } = new Autor();
+        [Required]
+        [ForeignKey("Autor")]
+        public int AutorId { get; set; }
+
+        public Autor? Autor { get; set; }
     }
 }

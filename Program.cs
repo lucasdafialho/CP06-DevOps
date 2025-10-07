@@ -1,4 +1,5 @@
-using SistemaBiblioteca.Services;
+using Microsoft.EntityFrameworkCore;
+using SistemaBiblioteca.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IMongoDbService, MongoDbService>();
+builder.Services.AddDbContext<BibliotecaDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddApplicationInsights(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
 
 var app = builder.Build();
 

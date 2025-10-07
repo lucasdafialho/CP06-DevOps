@@ -1,0 +1,16 @@
+bin/
+obj/
+publish/
+*.zip
+*.user
+*.suo
+*.cache
+.vs/
+.vscode/
+*.swp
+*~
+.DS_Store
+appsettings.Development.json
+launchSettings.json
+*.log
+
