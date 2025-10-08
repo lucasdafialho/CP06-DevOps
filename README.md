@@ -2,6 +2,20 @@
 
 Sistema de gerenciamento de biblioteca desenvolvido em .NET 8.0 com deploy no Microsoft Azure. Projeto desenvolvido para o CP06 da disciplina de DevOps.
 
+## Vídeo de Demonstração
+
+[![Vídeo de Demonstração](https://img.shields.io/badge/YouTube-Assistir%20Demo-red?style=for-the-badge&logo=youtube)](https://youtu.be/iwQAZ2-oHv8)
+
+**Link direto**: https://youtu.be/iwQAZ2-oHv8
+
+## Integrantes
+
+- **Julia Monteiro** - RM 557023
+- **Lucas de Assis Fialho** - RM 557884
+- **João Pedro Amorim** - RM 559213
+
+---
+
 ## Tecnologias Utilizadas
 
 - **.NET 8.0**: Framework principal
@@ -13,23 +27,133 @@ Sistema de gerenciamento de biblioteca desenvolvido em .NET 8.0 com deploy no Mi
 
 ## Arquitetura
 
+### Arquitetura da Solução Azure
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    GitHub Repository                         │
+│                                                              │
+│  ┌────────────────────────────────────────────────────┐    │
+│  │           GitHub Actions Workflow                   │    │
+│  │  • Trigger: Push to main                           │    │
+│  │  • Build .NET 8.0                                  │    │
+│  │  • Deploy Infrastructure (Azure CLI)               │    │
+│  │  • Deploy Application (Azure Web App)              │    │
+│  └─────────────────┬──────────────────────────────────┘    │
+└────────────────────┼────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Microsoft Azure                           │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │         Resource Group: rg-biblioteca-557884         │  │
+│  │                                                       │  │
+│  │  ┌─────────────────────────────────────────────┐    │  │
+│  │  │   App Service Plan (B1 Linux)               │    │  │
+│  │  │                                              │    │  │
+│  │  │   ┌───────────────────────────────────┐     │    │  │
+│  │  │   │  Web App (.NET 8.0)               │     │    │  │
+│  │  │   │  biblioteca-dotnet-app-rm557884   │     │    │  │
+│  │  │   │  • Controllers (API REST)          │     │    │  │
+│  │  │   │  • Entity Framework Core           │     │    │  │
+│  │  │   │  • Swagger/OpenAPI                 │     │    │  │
+│  │  │   └────────────┬──────────────────────┘     │    │  │
+│  │  └────────────────┼──────────────────────────┘      │  │
+│  │                   │                                  │  │
+│  │                   │ SQL Connection (Encrypted)       │  │
+│  │                   ▼                                  │  │
+│  │  ┌───────────────────────────────────────────────┐  │  │
+│  │  │   SQL Server (PaaS)                           │  │  │
+│  │  │   biblioteca-dotnet-app-rm557884              │  │  │
+│  │  │                                                │  │  │
+│  │  │   ┌─────────────────────────────────────┐    │  │  │
+│  │  │   │  Database: BibliotecaDB (Basic)     │    │  │  │
+│  │  │   │  • Tabela: Autores (Master)         │    │  │  │
+│  │  │   │  • Tabela: Livros (Detail)          │    │  │  │
+│  │  │   │  • Foreign Key: Livros → Autores    │    │  │  │
+│  │  │   └─────────────────────────────────────┘    │  │  │
+│  │  └───────────────────────────────────────────────┘  │  │
+│  │                                                       │  │
+│  │  ┌───────────────────────────────────────────────┐  │  │
+│  │  │   Application Insights                        │  │  │
+│  │  │   ai-biblioteca-557884                        │  │  │
+│  │  │   • Logs de requisições                       │  │  │
+│  │  │   • Métricas de performance                   │  │  │
+│  │  │   • Rastreamento de dependências              │  │  │
+│  │  │   • Alertas e dashboards                      │  │  │
+│  │  └───────────────────────────────────────────────┘  │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ### Modelo de Dados (Master-Detail)
 
-**Tabela Master: Autores**
-- Id (PK)
-- Nome
-- Nacionalidade
-- Livros (Navigation Property)
+```
+┌─────────────────────────────┐
+│        AUTORES (Master)     │
+├─────────────────────────────┤
+│ 🔑 Id (PK)                  │
+│ 📝 Nome (NVARCHAR 200)      │
+│ 🌍 Nacionalidade (100)      │
+└──────────────┬──────────────┘
+               │
+               │ 1:N
+               │
+               ▼
+┌─────────────────────────────┐
+│       LIVROS (Detail)       │
+├─────────────────────────────┤
+│ 🔑 Id (PK)                  │
+│ 📚 Titulo (NVARCHAR 300)    │
+│ 📅 AnoPublicacao (INT)      │
+│ 🔗 AutorId (FK) ───────────►│
+└─────────────────────────────┘
+```
 
-**Tabela Detail: Livros**
-- Id (PK)
-- Titulo
-- AnoPublicacao
-- AutorId (FK → Autores.Id)
-- Autor (Navigation Property)
+**Relacionamento**: Um Autor pode ter múltiplos Livros (1:N)
 
-### Relacionamento
-Um Autor pode ter múltiplos Livros (1:N), implementado através de Foreign Key.
+### Fluxo de Dados
+
+```
+Cliente/Browser
+     │
+     ▼
+[HTTPS Request] → Azure Web App (API REST)
+     │                     │
+     │                     ▼
+     │            [EF Core DbContext]
+     │                     │
+     │                     ▼
+     │            Azure SQL Database
+     │                     │
+     │                     ▼
+     │            [Query/Persistência]
+     │                     │
+     ◄─────────────────────┘
+[JSON Response]
+```
+
+### Padrão Arquitetural
+
+Este projeto segue uma arquitetura em camadas:
+
+1. **Controllers** (Camada de Apresentação)
+   - AutoresController: Endpoints para operações CRUD de autores
+   - LivrosController: Endpoints para operações CRUD de livros
+
+2. **Models** (Camada de Domínio)
+   - Autor: Entidade master com propriedades e validações
+   - Livro: Entidade detail com relacionamento FK
+
+3. **Data** (Camada de Acesso a Dados)
+   - BibliotecaDbContext: Context do Entity Framework Core
+   - Mapeamento ORM automático
+
+4. **Infrastructure** (Azure)
+   - App Service: Hospedagem da aplicação
+   - SQL Database: Persistência de dados
+   - Application Insights: Observabilidade
 
 ## Estrutura do Projeto
 
@@ -225,12 +349,6 @@ Verifique a Connection String e reinicie o Web App.
 ## Licença
 
 Projeto acadêmico desenvolvido para a disciplina de DevOps - FIAP
-
-## Integrantes
-
-- **Julia Monteiro** - RM 557023
-- **Lucas de Assis Fialho** - RM 557884
-- **João Pedro Amorim** - RM 559213
 
 ---
 
