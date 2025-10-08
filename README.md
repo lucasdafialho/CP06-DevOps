@@ -46,11 +46,11 @@ CP04-dotNET/
 ├── Database/
 │   └── DDL_Script.sql            # Script de criação das tabelas
 ├── Scripts/
-│   ├── deploy-azure.sh           # Script deploy Linux/Mac
-│   └── deploy-azure.ps1          # Script deploy Windows
-├── HOWTO_DEPLOY.md               # Guia completo de implantação
+│   ├── deploy-azure.sh           # Script deploy Azure CLI
+│   └── executar-ddl.sh           # Script para executar DDL├── .github/
+│   └── workflows/
+│       └── azure-deploy.yml      # Workflow GitHub Actions
 ├── API_Operations.json           # JSON das operações da API
-├── ROTEIRO_VIDEO.md              # Roteiro para vídeo
 └── README.md                     # Este arquivo
 ```
 
@@ -174,12 +174,18 @@ GROUP BY a.Id, a.Nome;
 ## Recursos Azure Criados
 
 Após o deploy, os seguintes recursos são criados:
-- **Resource Group**: rg-biblioteca-app
-- **SQL Server**: sqlserver-biblioteca-app
-- **SQL Database**: BibliotecaDB (Tier S0)
-- **App Service Plan**: plan-biblioteca-app (B1)
-- **Web App**: webapp-biblioteca-api
-- **Application Insights**: appinsights-biblioteca
+- **Resource Group**: rg-biblioteca-557884
+- **SQL Server**: biblioteca-dotnet-app-rm557884
+- **SQL Database**: BibliotecaDB (Tier Basic)
+- **App Service Plan**: biblioteca-dotnet-app-rm557884-plan (B1)
+- **Web App**: biblioteca-dotnet-app-rm557884
+- **Application Insights**: ai-biblioteca-557884
+
+### URLs de Acesso
+- **Aplicação**: https://biblioteca-dotnet-app-rm557884.azurewebsites.net
+- **Swagger**: https://biblioteca-dotnet-app-rm557884.azurewebsites.net/swagger
+- **API Livros**: https://biblioteca-dotnet-app-rm557884.azurewebsites.net/api/livros
+- **API Autores**: https://biblioteca-dotnet-app-rm557884.azurewebsites.net/api/autores
 
 ## Segurança
 
@@ -220,10 +226,24 @@ Verifique a Connection String e reinicie o Web App.
 
 Projeto acadêmico desenvolvido para a disciplina de DevOps - FIAP
 
-## Autores
+## Integrantes
 
-Grupo: [NOME_DO_GRUPO]
-- [RM - Nome do Integrante 1]
-- [RM - Nome do Integrante 2]
-- [RM - Nome do Integrante 3]
+- **Julia Monteiro** - RM 557023
+- **Lucas de Assis Fialho** - RM 557884
+- **João Pedro Amorim** - RM 559213
+
+---
+
+## Deploy Automatizado com GitHub Actions
+
+Este projeto utiliza CI/CD com GitHub Actions para deploy automático no Azure a cada push na branch `main`.
+
+### Como Funciona
+1. Push para branch `main` → Trigger automático
+2. Build da aplicação .NET
+3. Deploy da infraestrutura Azure
+4. Deploy da aplicação no Azure Web App
+5. Configuração automática de logs e monitoramento
+
+Para mais detalhes, consulte [.github/workflows/azure-deploy.yml](.github/workflows/azure-deploy.yml)
 
