@@ -19,13 +19,13 @@ namespace SistemaBiblioteca.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Autor>>> GetAutores()
         {
-            return await _context.Autores.Include(a => a.Livros).ToListAsync();
+            return await _context.Autores.ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Autor>> GetAutor(int id)
         {
-            var autor = await _context.Autores.Include(a => a.Livros).FirstOrDefaultAsync(a => a.Id == id);
+            var autor = await _context.Autores.FirstOrDefaultAsync(a => a.Id == id);
 
             if (autor == null)
             {

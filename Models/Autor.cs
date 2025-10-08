@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SistemaBiblioteca.Models
 {
@@ -18,6 +19,7 @@ namespace SistemaBiblioteca.Models
         [StringLength(100)]
         public string Nacionalidade { get; set; } = string.Empty;
 
+        [JsonIgnore]
         public ICollection<Livro> Livros { get; set; } = new List<Livro>();
     }
 }
